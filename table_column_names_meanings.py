@@ -125,5 +125,13 @@ column_meanings = {
 - Identity_confirmation: This signifies whether the agent confirm or ask the customer's name or not (Met/ Not Met).
 - Identity_confirmation_evidence: This is the evidence from the transcript evidence where the agent confirm or ask the customer's name or not.
 - uploaded_date: This signifies the date on which the conversation was uploaded in the server.
+""",
+"tTranscript": """
+- id: unique id of the tuple
+- conversation_id: This is the unique conversation id for every conversation.
+- request_id: This is the unique request id for every conversation.
+- transcript: This is the transcript of the audio call between the agent and the customer.
+- Uploaded_on: This signifies the date on which the conversation was uploaded in the server.
+- filename: name of the audio file
 """
 }
