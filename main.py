@@ -69,11 +69,17 @@ async def periodic_cleanup():
 async def chat_v1(message: Message, db_name: str, thread_id: str):
     if db_name not in supported_database_names:
         raise NotImplementedError(f"This database is not supported yet: {db_name}")
-    
-    if os.environ.get(f"{db_name.upper()}_DB", "") == "":
+        
+    db_host = os.environ.get(f"{db_name}_db_host") # type: ignore
+    db_port = os.environ.get(f"{db_name}_db_port") # type: ignore
+    db_user = os.environ.get(f"{db_name}_db_user") # type: ignore
+    db_password = os.environ.get(f"{db_name}_db_password", "") # type: ignore
+    db_name = os.environ.get(f"{db_name}_db_name") # type: ignore
+
+    if not db_host or not db_port or not db_user or not db_name:
         raise NotImplementedError(f"This database is not supported yet: {db_name}")
     
-    db = SQLDatabase.from_uri(os.environ.get(f"{db_name.upper()}_DB", ""))
+    db = SQLDatabase.from_uri(f"clickhouse+http://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}")
     agent = DatabaseAgent(llm=llm, db=db, checkpointer=checkpointer, export_directory="exports")
     
     try:
