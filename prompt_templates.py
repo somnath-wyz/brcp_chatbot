@@ -412,7 +412,7 @@ The database contains the information of the conversation between a call center 
 These information is distributed across three tables. These tables are:
 1. Output_BRCP: This table contains general information about the conversation, like was the call escalated or not, what was the reason for the escalation, who was the agent, etc.
 2. tTranscript: This table contains the whole transcript of the call.
-3. autoqa_combined: This table is used to track if the rules for a call was followed by the agent or not. eg: was the customer greeted by the agent at the start of the call or not, etc.
+3. autoqa_combined: This table is used to track if the guidelines for a call was followed by the agent or not. eg: was the customer greeted by the agent at the start of the call or not, etc.
 
 Current date: {date}
 
