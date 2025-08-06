@@ -285,7 +285,7 @@ class DatabaseAgent:
     async def run(
             self, 
             message: str, 
-            last_file_request_message_index_map: dict[str, int], 
+            processed_message_counts: dict[str, int], 
             thread_id: Optional[str] = None
         ) -> Dict[str, Any]:
         """
@@ -293,6 +293,7 @@ class DatabaseAgent:
         
         Args:
             message: User's message
+            processed_message_counts: Dictionary tracking how many messages have been processed for each thread
             thread_id: Optional thread ID for conversation continuity
             
         Returns:
@@ -315,21 +316,19 @@ class DatabaseAgent:
             created_files = []
 
             if thread_id:
-                last_file_request_message_index = last_file_request_message_index_map[thread_id] if thread_id in last_file_request_message_index_map else 0
-                unseen_messages = response["messages"][(len(response["messages"]) - last_file_request_message_index) - 1]
+                # Get the number of messages already processed for this thread
+                previously_processed_count = processed_message_counts.get(thread_id, 0)
                 
-                file_request_msg_idx = last_file_request_message_index
-                for i, msg in enumerate(unseen_messages):
-                    if hasattr(msg, 'content') and msg.content:
-                        if "Download:" in msg.content:
-                            # Extract download info from tool responses
-                            created_files.append(msg.content)
-                            file_request_msg_idx = i
-
-                if file_request_msg_idx == last_file_request_message_index:
-                    last_file_request_message_index_map[thread_id] = len(response["messages"])
-                else:
-                    last_file_request_message_index_map[thread_id] = file_request_msg_idx + last_file_request_message_index + 1
+                # Look only at new messages that haven't been processed yet
+                new_messages = response["messages"][previously_processed_count:]
+                
+                for msg in new_messages:
+                    if hasattr(msg, 'content') and msg.content and "Download:" in str(msg.content):
+                        # Extract download info from tool responses
+                        created_files.append(msg.content)
+                
+                # Update the processed count to the current total message count
+                processed_message_counts[thread_id] = len(response["messages"])
 
             result = {
                 "response": final_message.content,

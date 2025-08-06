@@ -22,7 +22,9 @@ logger = get_logger(__name__)
 llm = init_chat_model(model="gemini-1.5-pro", model_provider="google_genai")
 supported_database_names = ["cred"]
 checkpointer = InMemorySaver()
-last_file_request_message_index: dict[str, int] = {}
+
+# Track how many messages have been processed per thread to avoid duplicate file notifications
+processed_message_counts: dict[str, int] = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -77,8 +79,7 @@ async def chat_v1(message: Message, db_name: str, thread_id: str):
     try:
         await agent.connect_to_mcp_server()
         
-        # result = await agent.run(message.content, thread_id, auto_export=True)
-        result = await agent.run(message.content, last_file_request_message_index, thread_id)
+        result = await agent.run(message.content, processed_message_counts, thread_id)
         
         # Parse created files to extract download URLs
         download_links = []
