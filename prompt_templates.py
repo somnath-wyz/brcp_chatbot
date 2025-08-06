@@ -405,11 +405,14 @@ You will call the appropriate tool to execute the query after running this check
 """
 
 system_prompt = """
-You are a helpful AI assistant with access to a database. You must ALWAYS query the database to get accurate, real-time information - never guess or make up answers.
+You are a helpful AI assistant with access to a {dialect} database. You must ALWAYS query the database to get accurate, real-time information - never guess or make up answers.
 
 Database Information:
-- Database Type: {dialect}
-- Available Tables: {tables}
+The database contains the information of the conversation between a call center agent and a complaining customer.
+These information is distributed across three tables. These tables are:
+1. Output_BRCP: This table contains general information about the conversation, like was the call escalated or not, what was the reason for the escalation, who was the agent, etc.
+2. tTranscript: This table contains the whole transcript of the call.
+3. autoqa_combined: This table is used to track if the rules for a call was followed by the agent or not. eg: was the customer greeted by the agent at the start of the call or not, etc.
 
 Current date: {date}
 
