@@ -1,0 +1,23 @@
+[project]
+name = "wizard-chatbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "clickhouse-connect>=0.8.18",
+    "clickhouse-sqlalchemy>=0.3.2",
+    "fastapi>=0.116.1",
+    "httpx>=0.28.1",
+    "langchain>=0.3.27",
+    "langchain-community>=0.3.27",
+    "langchain-google-genai>=2.1.9",
+    "langchain-mcp-adapters>=0.1.9",
+    "langgraph>=0.6.3",
+    "matplotlib>=3.10.5",
+    "mcp[cli]>=1.12.3",
+    "pandas>=2.3.1",
+    "python-dotenv>=1.1.1",
+    "reportlab>=4.4.3",
+    "requests>=2.32.4",
+]

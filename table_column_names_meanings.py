@@ -1,0 +1,129 @@
+column_meanings = {
+    "Output_BRCP": """
+- conversation_id: This is the unique conversation id for every conversation.
+- request_id: This is the unique request id for every conversation.
+- Sarcasm_rude_behaviour: This is the result whether the agent followed the guidelines for rude and sarcasm parameter (Met/ Not Met). If the agent was not rude or sarcastic, then the result is 'Met', else 'Not Met'.
+- Sarcasm_rude_behaviour_evidence: This is the expert evidence from the transcript where the agent was rude or sarcastic. If no such evidence/ expert is found, then it will be 'N/A' and all sub-parameters related to escalation would be marked as 'N/A'.
+- escalation_results: If the customer escalated the issue, then the value for this column is 'Not Met', else 'Met'.
+- Issue_Identification: This signifies the issue which could be the root cause for escalation.
+- Probable_Reason_for_Escalation: The is the short summary for the reason due to which escalation occurred.
+- Probable_Reason_for_Escalation_Evidence: This is the expert/ evidence from the transcript where the escalation was there. If no such evidence/ expert is found, then it will be 'N/A'.
+- Agent_Handling_Capability: This signifies that how did the agent handled the escalated situation and dealt with the customer.
+- Wanted_to_connect_with_supervisor: This signifies whether the customer wanted to connect with the agent's supervisor or not.
+- de_escalate: This signifies whether the agent attempted to de-escalate the situation after the customer requested to speak with a supervisor. If no such request was made, then it will be 'N/A.'
+- Supervisor_call_connected: This signifies whether the customer was successfully connected to a supervisor after persisting in their request. If no request was made, then it will be 'N/A.'
+- call_back_arranged_from_supervisor: This signifies whether a callback from a supervisor was arranged because the supervisor was unavailable. If no request to speak with a supervisor was made, then it will be 'N/A.'
+- supervisor_evidence: This is the expert/ evidence from the transcript where the customer demanded to connect with the supervisor. If no such evidence/ expert is found, then it will be 'N/A'.
+- Denied_for_Supervisor_call: This indicates if the agent did not connect the customer to a supervisor and did not arrange a callback, despite the customer persisting in their request. If no request was made, then it will be 'N/A.'
+- denied_evidence: This is the expert/ evidence from the transcript where the agent strictly denied the customer's demand connect with the supervisor. If no such evidence/ expert is found, then it will be 'N/A'.
+- Today_Date: This is the timestamp at which the conversations are uploaded on the server. DO NOT USE THIS ONE.
+- Execution_Date: This is the timestamp at which the conversations are uploaded on the server.
+- uploaded_id: This is the id of the batch to which the conversation belongs.
+- Escalation_Category: This signifies the category to which the escalated cases are classified to. If the conversation doesn't belong to any category, then it will be 'N/A.'
+- Location: This is the location or the division name for the Queue Name.
+- TL_Email_Id: This is the e-mail id of the team leader of the agent.
+- Email_Id: This is the e-mail id of the agent.
+- Escalation_Keyword: This signifies the escalation keyword that has been used by the customer during the conversation. If no escalated keyword is used, then it will be 'N/A.'
+- Short_Escalation_Reason: This is the short reason for escalated cases. If no escalation is present, then it will be 'N/A.'
+- queuename1: This is the Queue Name for the conversation.
+- agentemail1: This is the e-mail id of the agent.
+- freshdeskticketid: This is the Fresh Desk Ticket Id for the conversation.
+""",
+    "BRCP2025": """
+- conversation_id: This is the unique conversation id for every conversation.
+- request_id: This is the unique request id for every conversation.
+- Sarcasm_rude_behaviour: This is the result whether the agent followed the guidelines for rude and sarcasm parameter (Met/ Not Met). If the agent was not rude or sarcastic, then the result is 'Met', else 'Not Met'.
+- Sarcasm_rude_behaviour_evidence: This is the expert evidence from the transcript where the agent was rude or sarcastic. If no such evidence/ expert is found, then it will be 'N/A' and all sub-parameters related to escalation would be marked as 'N/A'.
+- escalation_results: If the customer escalated the issue, then the value for this column is 'Not Met', else 'Met'.
+- Issue_Identification: This signifies the issue which could be the root cause for escalation.
+- Probable_Reason_for_Escalation: The is the short summary for the reason due to which escalation occurred.
+- Probable_Reason_for_Escalation_Evidence: This is the expert/ evidence from the transcript where the escalation was there. If no such evidence/ expert is found, then it will be 'N/A'.
+- Agent_Handling_Capability: This signifies that how did the agent handled the escalated situation and dealt with the customer.
+- Wanted_to_connect_with_supervisor: This signifies whether the customer wanted to connect with the agent's supervisor or not.
+- de_escalate: This signifies whether the agent attempted to de-escalate the situation after the customer requested to speak with a supervisor. If no such request was made, then it will be 'N/A.'
+- Supervisor_call_connected: This signifies whether the customer was successfully connected to a supervisor after persisting in their request. If no request was made, then it will be 'N/A.'
+- call_back_arranged_from_supervisor: This signifies whether a callback from a supervisor was arranged because the supervisor was unavailable. If no request to speak with a supervisor was made, then it will be 'N/A.'
+- supervisor_evidence: This is the expert/ evidence from the transcript where the customer demanded to connect with the supervisor. If no such evidence/ expert is found, then it will be 'N/A'.
+- Denied_for_Supervisor_call: This indicates if the agent did not connect the customer to a supervisor and did not arrange a callback, despite the customer persisting in their request. If no request was made, then it will be 'N/A.'
+- denied_evidence: This is the expert/ evidence from the transcript where the agent strictly denied the customer's demand connect with the supervisor. If no such evidence/ expert is found, then it will be 'N/A'.
+- Today_Date: This is the timestamp at which the conversations are uploaded on the server. DO NOT USE THIS ONE.
+- Execution_Date: This is the timestamp at which the conversations are uploaded on the server.
+- uploaded_id: This is the id of the batch to which the conversation belongs.
+- Escalation_Category: This signifies the category to which the escalated cases are classified to. If the conversation doesn't belong to any category, then it will be 'N/A.'
+- Location: This is the location or the division name for the Queue Name.
+- TL_Email_Id: This is the e-mail id of the team leader of the agent.
+- Email_Id: This is the e-mail id of the agent.
+- Escalation_Keyword: This signifies the escalation keyword that has been used by the customer during the conversation. If no escalated keyword is used, then it will be 'N/A.'
+- Short_Escalation_Reason: This is the short reason for escalated cases. If no escalation is present, then it will be 'N/A.'
+- queuename1: This is the Queue Name for the conversation.
+- agentemail1: This is the e-mail id of the agent.
+- freshdeskticketid: This is the Fresh Desk Ticket Id for the conversation.
+""",
+"autoqa_combined": """
+- conversation_id: This is the unique conversation id for every conversation.
+- request_id: This is the unique request id for every conversation.
+- Agentid: This is the email id of the agent.
+- hold_request_found: This signifies if the guidelines for requesting the customer to put on hold was followed or not.
+- hold_evidence: This is the evidence from the transcript where the agent asked/ requested to keep the call on hold. If no such evidence is found, then it will be 'N/A'.
+- CustomerLangCount: This signifies that how many times did the customer switched the language from English to Hindi and vice-versa.
+- AgentLangCount: This signifies that how many times did the agent switched the language from English to Hindi and vice-versa.
+- language_switch: This signifies the language switch result.
+- Reassurance_result: This is the result whether the agent followed the guidelines for reassurance parameter (Met/ Not Met). If the agent was reassured the customer, then the result is 'Met', else 'Not Met'.
+- Reassurance_evidence: This is the evidence from the transcript where the agent reassured the customer or not.
+- Apology_result: This is the result whether the agent followed the guidelines for apology parameter (Met/ Not Met). If the agent was apologetic towards the customer, then the result is 'Met', else 'Not Met'.
+- Apology_evidence: This is the evidence from the transcript where the agent was apologetic towards the customer or not.
+- Empathy_result: This is the result whether the agent followed the guidelines for empathy parameter (Met/ Not Met). If the agent was empathetic towards the customer, then the result is 'Met', else 'Not Met'.
+- Empathy_evidence: This is the evidence from the transcript where the agent was empathetic towards the customer or not.
+- No_Survey_Pitch: This is the result whether the agent followed the guidelines for survey parameter (Met/ Not Met). If the agent asked for the survey from the customer, then the result is 'Met', else 'Not Met'.
+- No_Survey_Pitch_Evidence: This is the evidence from the transcript where the agent asked for the survey from the customer or not.
+- Unethical_Solicitation: This is the result whether the agent followed the guidelines for Unethical Solicitation parameter. If the agent's conduct was ethical, then the result is 'Met'.
+- Unethical_Solicitation_Evidence: This is the evidence from the transcript where the agent was ethical or not.
+- DSAT_result: This signifies if the customer has rated the call as dissatisfied and given low rating.
+- Customer_Issue_Identification: This signifies the core issue due to which the customer was dis-satisfied and rated low. 
+- Reason_for_DSAT: This is the evidence from the transcript evidence which made customer dis-satisfied and rated low.
+- Suggestion_for_DSAT_Prevention: This signifies some suggestions for the agent could have done to get better rating in future as to satisfy the customer.
+- DSAT_Category: This signifies the category to which the DSAT cases are classified to. If the conversation doesn't belong to any category, then it will be 'N/A' 
+- Open_the_call_in_default_language: This signifies whether the agent followed the guidelines to open the call in default language or not (Met/ Not Met).
+- Open_the_call_in_default_language_evidence: This is the evidence from the transcript evidence where the customer opened the call in default language or not.
+- Open_the_call_in_default_language_Reason: This signifies the summary whether the agent followed the default language guidelines or not. 
+- Hold_requested_before_dead_air: This signifies whether the agent requested for keeping the call on hold before the dead air or not (Met/ Not Met).
+- long_dead_air: This signifies the various duration(s) where dead air occurred in the conversation.
+- dead_air_timestamp: This signifies the timestamp(s) where dead air occurred in the conversation.
+- VOC_Category: This signifies the category under which the core issue has been discussed.
+- VOC_Core_Issue_Summary: This signifies the summary of the core issue discussed.
+- timely_closing_result: This signifies whether the agent followed the guidelines the timely closing or not (Met/ Not Met).
+- timely_closing_evidence: This signifies the evidence whether the call was timely closed or not.
+- hold_ended_in_required_duration: This signifies whether the hold requested by the agent ended in required duration or not (Met/ Not Met). If hold was not needed, then it would be 'N/A'
+- hold_ended_in_required_duration_evidence: This signifies the evidence whether the hold ended in required duration or not, along with the total hold duration.
+- hold_durations_after_hold_request: This signifies the duration(s) for which the call was put on hold after the agent requested for hold.
+- language_switch_result: This signifies whether the agent followed the language switch guidelines or not (Met/ Not Met).
+- Call_Opening_Category: This signifies the category for the call opening parameter.
+- default_opening_lang_Category: This signifies the category for the default opening language parameter.
+- Apology_Category: This signifies the category for the apology parameter.
+- Empathy_Category: This signifies the category for the empathy parameter.
+- Chat_Closing_Category: This signifies the category for the call closing parameter.
+- language_switch_category: This signifies the category for the language switch parameter.
+- Hold_category: This signifies the category for the hold parameter.
+- Reassurance_Category: This signifies the category for the reassurance parameter.
+- Language: This signifies that which language has been spoken the most in the conversation.
+- Personalization_result: This signifies whether the agent addressed the customer by their name or not.
+- Personalization_Evidence: This is the evidence from the transcript evidence where the agent addressed the customer by their name or not.
+- Delayed_call_opening: This signifies whether the agent followed the delayed opening guidelines or not (Met/ Not Met).
+- Delayed_call_opening_evidence: This signifies how much time did the agent took to open the call.
+- Further_Assistance: This signifies whether the agent explicitly asked the customer if they had any other issues or needed further assistance (Met/Not Met).
+- Further_Assistance_Evidence: This is the evidence from the transcript evidence where the agent explicitly asked the customer if they had any other issues or needed further assistance.
+- Effective_IVR_Survey: This signifies whether the agent requested feedback from the customer or asked if they could transfer the call to an IVR for feedback, ensuring that the customer’s experience was shared (Met/ Not Met).
+- Effective_IVR_Survey_Evidence: This is the evidence from the transcript evidence where the agent requested feedback from the customer or asked if they could transfer the call to an IVR for feedback, ensuring that the customer’s experience was shared.
+- Branding: This signifies whether the agent mentioned a brand-related closing statement or not (Met/ Not Met).
+- Branding_Evidence: This is the evidence from the transcript evidence where the agent mentioned a brand-related closing statement or not.
+- Greeting: This signifies whether the agent ended the call politely with a positive closing statement or not (Met/ Not Met).
+- Greeting_Evidence: This is the evidence from the transcript evidence where the agent ended the call politely with a positive closing statement or not.
+- Greeting_the_customer: This signifies whether the agent greets the customer by using any 'Good morning/afternoon/evening/ Hello' or not (Met/ Not Met).
+- Greeting_the_customer_evidence: This is the evidence from the transcript evidence where the agent greeted the customer or not.
+- Self_introduction: This signifies whether the agent must introduce themselves with their name or not (Met/ Not Met).
+- Self_introduction_evidence: This is the evidence from the transcript evidence where the agent must introduce themselves with their name or not.
+- Identity_confirmation: This signifies whether the agent confirm or ask the customer's name or not (Met/ Not Met).
+- Identity_confirmation_evidence: This is the evidence from the transcript evidence where the agent confirm or ask the customer's name or not.
+- uploaded_date: This signifies the date on which the conversation was uploaded in the server.
+"""
+}
