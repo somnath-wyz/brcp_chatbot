@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import os
@@ -26,16 +27,18 @@ checkpointer = InMemorySaver()
 # Track how many messages have been processed per thread to avoid duplicate file notifications
 processed_message_counts: dict[str, int] = {}
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     asyncio.create_task(periodic_cleanup())
     yield
 
+
 app = FastAPI(title="Wizard chatbot API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # or ["*"] for dev
+    allow_origins=["*"],  # or ["*"] for dev
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,6 +47,7 @@ app.add_middleware(
 export_directory = Path("exports")
 export_directory.mkdir(exist_ok=True)
 app.mount("/downloads", StaticFiles(directory=str(export_directory)), name="downloads")
+
 
 # Background task to clean up old files
 async def cleanup_old_files():
@@ -59,34 +63,40 @@ async def cleanup_old_files():
     except Exception as e:
         logger.error(f"Error during file cleanup: {e}")
 
+
 async def periodic_cleanup():
     """Run file cleanup every hour."""
     while True:
-        await asyncio.sleep(3600) # Wait 1 hour
+        await asyncio.sleep(3600)  # Wait 1 hour
         await cleanup_old_files()
+
 
 @app.post("/chat/v1")
 async def chat_v1(message: Message, db_name: str, thread_id: str):
     if db_name not in supported_database_names:
         raise NotImplementedError(f"This database is not supported yet: {db_name}")
-        
-    db_host = os.environ.get(f"{db_name}_db_host") # type: ignore
-    db_port = os.environ.get(f"{db_name}_db_port") # type: ignore
-    db_user = os.environ.get(f"{db_name}_db_user") # type: ignore
-    db_password = os.environ.get(f"{db_name}_db_password", "") # type: ignore
-    db_name = os.environ.get(f"{db_name}_db_name") # type: ignore
+
+    db_host = os.environ.get(f"{db_name}_db_host")  # type: ignore
+    db_port = os.environ.get(f"{db_name}_db_port")  # type: ignore
+    db_user = os.environ.get(f"{db_name}_db_user")  # type: ignore
+    db_password = os.environ.get(f"{db_name}_db_password", "")  # type: ignore
+    db_name = os.environ.get(f"{db_name}_db_name")  # type: ignore
 
     if not db_host or not db_port or not db_user or not db_name:
         raise NotImplementedError(f"This database is not supported yet: {db_name}")
-    
-    db = SQLDatabase.from_uri(f"clickhouse+http://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}")
-    agent = DatabaseAgent(llm=llm, db=db, checkpointer=checkpointer, export_directory="exports")
-    
+
+    db = SQLDatabase.from_uri(
+        f"clickhouse+http://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    )
+    agent = DatabaseAgent(
+        llm=llm, db=db, checkpointer=checkpointer, export_directory="exports"
+    )
+
     try:
         await agent.connect_to_mcp_server()
-        
+
         result = await agent.run(message.content, processed_message_counts, thread_id)
-        
+
         # Parse created files to extract download URLs
         download_links = []
         for file_info in result.get("created_files", []):
@@ -97,7 +107,7 @@ async def chat_v1(message: Message, db_name: str, thread_id: str):
                     base_url = os.environ.get("SERVER_URL", "http://localhost:8000")
                     full_url = f"{base_url}{url_part}"
                     download_links.append(full_url)
-        
+
         # Enhance response with download links if any
         response_text = result["response"]
         if download_links:
@@ -105,15 +115,15 @@ async def chat_v1(message: Message, db_name: str, thread_id: str):
             for i, link in enumerate(download_links, 1):
                 filename = os.path.basename(link)
                 response_text += f"{i}. [{filename}]({link})\n"
-        
+
         return ChatResponse(
             response=response_text,
             created_files=download_links,
             thread_id=thread_id,
             success=True,
-            error=result.get("error")
+            error=result.get("error"),
         )
-        
+
     except ConnectionError as e:
         logger.error(f"Failed to connect: \n{str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
