@@ -22,166 +22,88 @@ from datetime import datetime
 import os
 import clickhouse_connect
 from table_column_names_meanings import column_meanings
+from chart_creator import ChartCreator
 
 mcp = FastMCP("wizard_chatbot_mcp")
 export_dir = Path("exports")
-
-def _create_matplotlib_chart(chart_data: Dict[str, Any], chart_type: str) -> Optional[str]:
-    """
-    Create a chart using matplotlib and save it as an image.
-    
-    Args:
-        chart_data: Dictionary containing chart configuration
-        chart_type: Type of chart (pie, bar, line, histogram)
-        
-    Returns:
-        Path to the saved chart image
-    """
-    try:
-        # Set style for better looking charts
-        plt.style.use('seaborn-v0_8' if 'seaborn-v0_8' in plt.style.available else 'default')
-        
-        fig, ax = plt.subplots(figsize=(12, 8))  # Increased figure size for better readability
-        
-        if chart_type == "pie":
-            labels = chart_data.get("labels", [])
-            values = chart_data.get("values", [])
-            colors_list = chart_data.get("colors", plt.cm.Set3.colors[:len(values)]) # type: ignore
-            wedges, texts, autotexts = ax.pie(values, labels=labels, autopct='%1.1f%%',colors=colors_list,startangle=90) # type: ignore
-            
-            # Enhance text appearance
-            for autotext in autotexts:
-                autotext.set_color('white')
-                autotext.set_weight('bold') # type: ignore
-                    
-        elif chart_type == "bar":
-            # Handle both possible data formats
-            if "x_labels" in chart_data and "y_values" in chart_data:
-                # Format 1: separate x_labels and y_values
-                x_labels = chart_data.get("x_labels", [])
-                y_values = chart_data.get("y_values", [])
-            elif "labels" in chart_data and "values" in chart_data:
-                # Format 2: labels and values (same as pie chart)
-                x_labels = chart_data.get("labels", [])
-                y_values = chart_data.get("values", [])
-            elif "data" in chart_data:
-                # Format 3: data as list of tuples or dictionaries
-                data = chart_data.get("data", [])
-                if data and isinstance(data[0], tuple):
-                    x_labels = [item[0] for item in data]
-                    y_values = [item[1] for item in data]
-                elif data and isinstance(data[0], dict):
-                    # Assume first key is label, second is value
-                    keys = list(data[0].keys())
-                    x_labels = [item[keys[0]] for item in data]
-                    y_values = [item[keys[1]] for item in data]
-                else:
-                    x_labels = [f"Item {i+1}" for i in range(len(data))]
-                    y_values = data
-            else:
-                # Fallback
-                x_labels = ["No Data"]
-                y_values = [0]
-            
-            # Ensure we have matching lengths
-            min_length = min(len(x_labels), len(y_values))
-            x_labels = x_labels[:min_length]
-            y_values = y_values[:min_length]
-            
-            # Convert y_values to numeric if they're strings
-            try:
-                y_values = [float(val) if isinstance(val, str) and val.replace('.', '').isdigit() else val for val in y_values]
-                y_values = [val if isinstance(val, (int, float)) else 0 for val in y_values]
-            except:
-                y_values = [1] * len(x_labels)  # Fallback values
-            
-            color = chart_data.get("color", "steelblue")
-            
-            # Create bar chart with better formatting
-            bars = ax.bar(range(len(x_labels)), y_values, color=color, alpha=0.8, edgecolor='black', linewidth=0.5)
-            
-            # Add value labels on bars
-            for i, (bar, value) in enumerate(zip(bars, y_values)):
-                height = bar.get_height()
-                # Format the label based on value type
-                if isinstance(value, float):
-                    label_text = f'{value:.1f}' if value % 1 != 0 else f'{int(value)}'
-                else:
-                    label_text = str(value)
-                
-                ax.text(bar.get_x() + bar.get_width()/2., height + max(y_values) * 0.01,
-                    label_text,
-                    ha='center', va='bottom', fontweight='bold', fontsize=10)
-            
-            # Set x-axis labels and formatting
-            ax.set_xticks(range(len(x_labels)))
-            ax.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=9)
-            
-            # Set axis labels
-            ax.set_xlabel(chart_data.get("x_label", "Agents"), fontsize=12, fontweight='bold')
-            ax.set_ylabel(chart_data.get("y_label", "Number of Cases"), fontsize=12, fontweight='bold')
-            
-            # Add grid for better readability
-            ax.grid(True, alpha=0.3, axis='y')
-            ax.set_axisbelow(True)
-            
-            # Set y-axis to start from 0
-            ax.set_ylim(bottom=0)
-            
-        elif chart_type == "line":
-            x_values = chart_data.get("x_values", [])
-            y_values = chart_data.get("y_values", [])
-            
-            ax.plot(x_values, y_values, marker='o', linewidth=2, markersize=6)
-            ax.set_xlabel(chart_data.get("x_label", "X Axis"))
-            ax.set_ylabel(chart_data.get("y_label", "Y Axis"))
-            ax.grid(True, alpha=0.3)
-            
-        elif chart_type == "histogram":
-            data = chart_data.get("data", [])
-            bins = chart_data.get("bins", 10)
-            
-            ax.hist(data, bins=bins, alpha=0.7, color='skyblue', edgecolor='black')
-            ax.set_xlabel(chart_data.get("x_label", "Values"))
-            ax.set_ylabel("Frequency")
-            
-        # Set title
-        title = chart_data.get("title", f"{chart_type.title()} Chart")
-        ax.set_title(title, fontsize=16, fontweight='bold', pad=20)
-        
-        # Improve layout to prevent label cutoff
-        plt.tight_layout()
-        
-        # Additional padding for bar charts to prevent x-label cutoff
-        if chart_type == "bar":
-            plt.subplots_adjust(bottom=0.2)
-        
-        # Save chart
-        chart_filename = f"chart_{uuid.uuid4().hex[:8]}.png"
-        chart_path = export_dir / chart_filename
-        plt.savefig(chart_path, dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
-        plt.close()
-        
-        return chart_filename
-        
-    except Exception as e:
-        logging.error(f"Error creating matplotlib chart: {e}")
-        plt.close()  # Ensure we close the figure even on error
-        return None
+chart_creator = ChartCreator(export_dir=export_dir)
 
 @mcp.tool()
-def create_matplotlib_chat(chart_data: Dict[str, Any], chart_type: str) -> Optional[str]:
+def create_chat(chart_data: Dict[str, Any], chart_type: str) -> Optional[str]:
     """
     Create a chart using matplotlib and save it as an image.
     
     Args:
-        chart_data: Dictionary containing chart configuration
-        chart_type: Type of chart (pie, bar, line, histogram)
+        chart_data: Dictionary containing chart configuration with the following format:
+            For pie charts:
+                {
+                    "labels": ["Label1", "Label2", "Label3"],  # Required
+                    "values": [10, 20, 30],                    # Required
+                    "colors": ["red", "blue", "green"],        # Optional
+                    "title": "My Pie Chart"                    # Optional
+                }
+            
+            For bar charts (supports multiple formats):
+                Format 1:
+                {
+                    "x_labels": ["A", "B", "C"],               # Required
+                    "y_values": [10, 20, 30],                  # Required
+                    "color": "steelblue",                      # Optional
+                    "x_label": "Categories",                   # Optional
+                    "y_label": "Values",                       # Optional
+                    "title": "My Bar Chart"                    # Optional
+                }
+                
+                Format 2 (same as pie):
+                {
+                    "labels": ["A", "B", "C"],                 # Required
+                    "values": [10, 20, 30],                    # Required
+                    "color": "steelblue",                      # Optional
+                    "x_label": "Categories",                   # Optional
+                    "y_label": "Values",                       # Optional
+                    "title": "My Bar Chart"                    # Optional
+                }
+                
+                Format 3 (data as list):
+                {
+                    "data": [("A", 10), ("B", 20), ("C", 30)] # Required (tuples)
+                    # OR
+                    "data": [{"name": "A", "value": 10}, ...] # Required (dicts)
+                    # OR
+                    "data": [10, 20, 30],                     # Required (values only)
+                    "color": "steelblue",                     # Optional
+                    "x_label": "Categories",                  # Optional
+                    "y_label": "Values",                      # Optional
+                    "title": "My Bar Chart"                   # Optional
+                }
+            
+            For line charts:
+                {
+                    "x_values": [1, 2, 3, 4],                 # Required
+                    "y_values": [10, 20, 15, 25],             # Required
+                    "x_label": "Time",                        # Optional
+                    "y_label": "Values",                      # Optional
+                    "title": "My Line Chart"                  # Optional
+                }
+            
+            For histogram:
+                {
+                    "data": [1, 2, 2, 3, 3, 3, 4, 4, 5],     # Required
+                    "bins": 10,                               # Optional (default: 10)
+                    "x_label": "Values",                      # Optional
+                    "title": "My Histogram"                   # Optional
+                }
+        
+        chart_type: Type of chart ("pie", "bar", "line", "histogram")
         
     Returns:
         Path to the saved chart image
+        
+    Raises:
+        ValueError: If chart_data format is invalid or required fields are missing
+        TypeError: If chart_type is not supported or data types are incorrect
     """
-    filename = _create_matplotlib_chart(chart_data, chart_type)
+    filename = chart_creator.create_chart(chart_data, chart_type)
     return f"Chart image created successfully: {filename} (Download: /downloads/{filename})"
 
 @mcp.tool()
@@ -369,7 +291,7 @@ def create_pdf_report(
                 chart_data = section.get("data", {})
                 
                 # Create chart using matplotlib
-                chart_filename = _create_matplotlib_chart(chart_data, chart_type)
+                chart_filename = chart_creator.create_chart(chart_data, chart_type)
                 
                 if not chart_filename:
                     chart_filename = ""
