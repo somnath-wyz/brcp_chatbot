@@ -22,19 +22,17 @@ class DatabaseAgent:
     A conversational database agent that makes database interactions transparent to users.
     Users interact as if talking to a normal AI assistant, while the system handles
     database queries and file exports intelligently in the background.
-    Enhanced with column meanings for ClickHouse legacy databases.
     """
     
     def __init__(self, llm: BaseChatModel, db: SQLDatabase, checkpointer=None, export_directory: str = "exports") -> None:
         """
-        Initialize the ConversationalDatabaseAgent with column meanings support.
+        Initialize the DatabaseAgent.
         
         Args:
             llm: The language model for conversation and query generation
             db: SQLDatabase instance for database operations
             checkpointer: Optional checkpointer for conversation persistence
             export_directory: Directory to store exported files
-            column_meanings: Dictionary mapping column names to their meanings
         """
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
@@ -71,7 +69,7 @@ class DatabaseAgent:
         command = "python" if is_python else "node"
         
         server_params = StdioServerParameters(command=command, args=[server_script_path], env=None)
-        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params)) # type: ignore
+        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
         self.stdio, self.write = stdio_transport
         self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
 
