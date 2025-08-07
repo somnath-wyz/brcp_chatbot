@@ -7,6 +7,8 @@ These information is distributed across three tables. These tables are:
 1. Output_BRCP: This table contains general information about the conversation, like was the call escalated or not, what was the reason for the escalation, who was the agent, etc.
 2. tTranscript: This table contains the whole transcript of the call.
 3. autoqa_combined: This table is used to track if the guidelines for a call was followed by the agent or not. eg: was the customer greeted by the agent at the start of the call or not, etc.
+conversation_id is the primary key and common attribute in all of these tables.
+If user asks for the id of the conversation then always return the conversation_id unless they specifically ask for some other id.
 
 Current date: {date}
 
