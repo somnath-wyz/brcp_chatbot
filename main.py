@@ -104,7 +104,7 @@ async def chat_v1(message: Message, db_name: str, thread_id: str):
                 # Extract the download URL
                 url_part = file_info.split("Download:")[-1].strip().rstrip(")")
                 if url_part:
-                    base_url = os.environ.get("SERVER_URL", "http://localhost:8000")
+                    base_url = 'https://edu.wyzmindz.com'
                     full_url = f"{base_url}{url_part}"
                     download_links.append(full_url)
 

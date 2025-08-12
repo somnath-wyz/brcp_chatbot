@@ -132,11 +132,11 @@ def export_query_to_csv(query: str, title: str) -> str:
     """
     try:
         client = clickhouse_connect.get_client(
-            host=os.environ.get("db_host", "localhost"),
-            port=int(os.environ.get("db_port", "8123")),
-            username=os.environ.get("db_user", "default"),
-            password=os.environ.get("db_password", ""),
-            database=os.environ.get("db_name", "Cred"),
+            host=os.environ.get("cred_db_host", "localhost"),
+            port=int(os.environ.get("cred_db_port", "8123")),
+            username=os.environ.get("cred_db_user", "default"),
+            password=os.environ.get("cred_db_password", ""),
+            database=os.environ.get("cred_db_name", "Cred"),
         )
         result = client.query(query)
         rows_as_dicts = [
