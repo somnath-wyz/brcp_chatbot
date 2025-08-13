@@ -21,9 +21,9 @@ class TraceManager:
 
             traces.append(
                 Trace(
+                    id=msg.id,
                     thread_id=thread_id,
                     type=type,
-                    msg_id=msg.id,
                     content=msg.content if len(msg.content) else None,
                     tool_call_requests=[ {"name": request["name"], 'args': request["args"]} for request in msg.tool_calls] if type == "ai" and hasattr(msg, "tool_calls") else None,
                     tool_name=msg.name if type == "tool" and hasattr(msg, "tool_call_id") else None,
