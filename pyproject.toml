@@ -17,7 +17,10 @@ dependencies = [
     "matplotlib>=3.10.5",
     "mcp[cli]>=1.12.3",
     "pandas>=2.3.1",
+    "psycopg2-binary>=2.9.10",
     "python-dotenv>=1.1.1",
     "reportlab>=4.4.3",
     "requests>=2.32.4",
+    "sqlalchemy>=2.0.42",
+    "sqlalchemy-utils>=0.41.2",
 ]

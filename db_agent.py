@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Dict, Any, List, AsyncGenerator
+from typing import Literal, Optional, Dict, Any, List
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, BaseMessage
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph import END, START, MessagesState, StateGraph
@@ -14,6 +14,7 @@ from mcp import ClientSession, StdioServerParameters
 from contextlib import AsyncExitStack
 from mcp.client.stdio import stdio_client
 from langchain_mcp_adapters.tools import load_mcp_tools
+from trace_manager import TraceManager
 
 logger = logging.getLogger(__name__)
 
@@ -153,19 +154,18 @@ class DatabaseAgent:
     async def run(
         self,
         message: str,
-        processed_message_counts: dict[str, int],
         thread_id: Optional[str] = None,
+        trace_manager: Optional[TraceManager] = None
     ) -> Dict[str, Any]:
         """
         Run a conversational interaction.
 
         Args:
             message: User's message
-            processed_message_counts: Dictionary tracking how many messages have been processed for each thread
             thread_id: Optional thread ID for conversation continuity
 
         Returns:
-            Dictionary with response and any generated files
+            Dictionary with response 
         """
         try:
             # Configure for thread persistence if provided
@@ -175,38 +175,20 @@ class DatabaseAgent:
                 config = {"configurable": {"thread_id": thread_id}}
 
             # Process the conversation
+            start_time = datetime.now()
             response = await self.agent.ainvoke(
                 {"messages": [HumanMessage(content=message)]}, config=config
             )
+            end_time = datetime.now()
+
+            if thread_id and trace_manager:
+                trace_manager.add_trace(thread_id, response, start_time, end_time)
 
             # Extract the final response
             final_message = response["messages"][-1]
 
-            # Check if any files were created by looking at tool responses
-            created_files = []
-
-            if thread_id:
-                # Get the number of messages already processed for this thread
-                previously_processed_count = processed_message_counts.get(thread_id, 0)
-
-                # Look only at new messages that haven't been processed yet
-                new_messages = response["messages"][previously_processed_count:]
-
-                for msg in new_messages:
-                    if (
-                        hasattr(msg, "content")
-                        and msg.content
-                        and "Download:" in str(msg.content)
-                    ):
-                        # Extract download info from tool responses
-                        created_files.append(msg.content)
-
-                # Update the processed count to the current total message count
-                processed_message_counts[thread_id] = len(response["messages"])
-
             result = {
                 "response": final_message.content,
-                "created_files": created_files,
                 "thread_id": thread_id,
             }
 
@@ -216,7 +198,6 @@ class DatabaseAgent:
             logger.error(f"Error in conversational run: {e}")
             return {
                 "response": "I apologize, but I encountered an issue. Could you please try again?",
-                "created_files": [],
                 "thread_id": thread_id,
                 "error": str(e),
             }

@@ -18,18 +18,18 @@ from schemas.message import Message
 from schemas.response import ChatResponse
 from logger import get_logger
 from db_agent import DatabaseAgent
+from trace_manager import TraceManager
+from database import Base, engine
 
 logger = get_logger(__name__)
 llm = init_chat_model(model="gemini-1.5-pro", model_provider="google_genai")
 supported_database_names = ["cred"]
 checkpointer = InMemorySaver()
-
-# Track how many messages have been processed per thread to avoid duplicate file notifications
-processed_message_counts: dict[str, int] = {}
-
+trace_manager = TraceManager()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
     asyncio.create_task(periodic_cleanup())
     yield
 
@@ -95,30 +95,10 @@ async def chat_v1(message: Message, db_name: str, thread_id: str):
     try:
         await agent.connect_to_mcp_server()
 
-        result = await agent.run(message.content, processed_message_counts, thread_id)
-
-        # Parse created files to extract download URLs
-        download_links = []
-        for file_info in result.get("created_files", []):
-            if "Download:" in file_info:
-                # Extract the download URL
-                url_part = file_info.split("Download:")[-1].strip().rstrip(")")
-                if url_part:
-                    base_url = 'https://edu.wyzmindz.com'
-                    full_url = f"{base_url}{url_part}"
-                    download_links.append(full_url)
-
-        # Enhance response with download links if any
-        response_text = result["response"]
-        if download_links:
-            response_text += "\n\n🔗 **Download Links:**\n"
-            for i, link in enumerate(download_links, 1):
-                filename = os.path.basename(link)
-                response_text += f"{i}. [{filename}]({link})\n"
+        result = await agent.run(message.content, thread_id, trace_manager)
 
         return ChatResponse(
-            response=response_text,
-            created_files=download_links,
+            response=result["response"],
             thread_id=thread_id,
             success=True,
             error=result.get("error"),

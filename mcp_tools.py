@@ -38,6 +38,8 @@ mcp = FastMCP("wizard_chatbot_mcp")
 export_dir = Path("exports")
 chart_creator = ChartCreator(export_dir=export_dir)
 
+server_url = os.environ.get("SERVER_URL", "http://localhost:8000")
+
 
 @mcp.tool()
 def create_chat(chart_data: Dict[str, Any], chart_type: str) -> Optional[str]:
@@ -115,7 +117,7 @@ def create_chat(chart_data: Dict[str, Any], chart_type: str) -> Optional[str]:
         TypeError: If chart_type is not supported or data types are incorrect
     """
     filename = chart_creator.create_chart(chart_data, chart_type)
-    return f"Chart image created successfully: {filename} (Download: /downloads/{filename})"
+    return f"Chart image created successfully: {filename} (Download: {server_url}/downloads/{filename})"
 
 
 @mcp.tool()
@@ -157,7 +159,7 @@ def export_query_to_csv(query: str, title: str) -> str:
 
         df.to_csv(csv_path, index=False, encoding="utf-8")
 
-        return f"CSV file created successfully: {csv_filename} (Download: /downloads/{csv_filename})"
+        return f"CSV file created successfully: {csv_filename} (Download: {server_url}/downloads/{csv_filename})"
     except Exception as e:
         logging.error(f"Error creating CSV export: {e}")
         return f"Error creating CSV file: {str(e)}"
@@ -394,7 +396,7 @@ def create_pdf_report(
 
         logging.info(f"Enhanced PDF report created: {pdf_filename}")
 
-        return f"Enhanced PDF report created successfully: {pdf_filename} (Download: /downloads/{pdf_filename})"
+        return f"Enhanced PDF report created successfully: {pdf_filename} (Download: {server_url}/downloads/{pdf_filename})"
 
     except Exception as e:
         logging.error(f"Error creating enhanced PDF report: {e}")

@@ -13,7 +13,7 @@ class QueryResponse(BaseModel):
 class ChatResponse(BaseModel):
     """Response model for chat interactions."""
     response: str
-    created_files: List[str] = []
+    # created_files: List[str] = []
     thread_id: Optional[str] = None
     success: bool = True
     error: Optional[str] = None
