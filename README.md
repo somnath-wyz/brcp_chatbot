@@ -66,7 +66,7 @@ A sophisticated AI-powered chatbot that provides natural language interactions w
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/somnath-wyz/brcp_chatbot.git
    cd wizard-chatbot
    ```
 
